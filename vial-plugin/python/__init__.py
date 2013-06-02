@@ -1,12 +1,12 @@
-from vial import manager
+import vial
 from vial.utils import lfunc
 
 def init():
-    manager.on('filetype:python', lfunc('.plugin.python_buffer'))
+    vial.event.on('filetype:python', lfunc('.plugin.python_buffer'))
 
-    manager.register_function('VialPythonOmni(findstart, base)', lfunc('.plugin.omnifunc'))
+    vial.register_function('VialPythonOmni(findstart, base)', lfunc('.plugin.omnifunc'))
 
-    manager.register_function('VialPythonExecutableChoice(start, cmdline, pos)',
+    vial.register_function('VialPythonExecutableChoice(start, cmdline, pos)',
         lfunc('.plugin.executable_choice'))
-    manager.register_command('VialPythonSetExecutable', lfunc('.plugin.set_executable'),
+    vial.register_command('VialPythonSetExecutable', lfunc('.plugin.set_executable'),
         complete='custom,VialPythonExecutableChoice', nargs=1)
