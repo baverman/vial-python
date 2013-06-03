@@ -1,3 +1,4 @@
+import os
 from vial import vfunc, vim
 from vial.utils import get_var, vimfunction
 
@@ -6,12 +7,19 @@ from . import env
 def python_buffer(buf):
     vfunc.setbufvar(buf.number, '&omnifunc', 'VialPythonOmni')
 
+last_result = None
 @vimfunction
 def omnifunc(findstart, base):
+    global last_result
     if findstart:
-        return vim.current.window.cursor[1] - 1
+        source, pos = get_source_and_offset()
+        m, _ = last_result = env.get().assist(os.getcwd(), source, pos, vim.current.buffer.name)
+        if m:
+            return pos - len(m) - 1
+        else:
+            return -1
     else:
-        return ['boo', 'foo']
+        return last_result[1]
 
 @vimfunction
 def executable_choice(start, cmdline, pos):
@@ -23,3 +31,9 @@ def executable_choice(start, cmdline, pos):
 
 def set_executable(name):
     vim.vars['vial_python_executable'] = name
+
+def get_source_and_offset():
+    source = '\n'.join(vim.current.buffer[:])
+    line, pos = vim.current.window.cursor
+    offset = vfunc.line2byte(line) + pos
+    return source, offset
