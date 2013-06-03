@@ -14,8 +14,8 @@ def omnifunc(findstart, base):
     if findstart:
         source, pos = get_source_and_offset()
         m, _ = last_result = env.get().assist(os.getcwd(), source, pos, vim.current.buffer.name)
-        if m:
-            return pos - len(m) - 1
+        if m is not None:
+            return vim.current.window.cursor[1] - len(m)
         else:
             return -1
     else:
