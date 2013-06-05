@@ -10,3 +10,5 @@ def init():
         lfunc('.plugin.executable_choice'))
     vial.register_command('VialPythonSetExecutable', lfunc('.plugin.set_executable'),
         complete='custom,VialPythonExecutableChoice', nargs=1)
+
+    vial.register_command('VialPythonGotoDefinition', lfunc('.plugin.goto_definition'))
