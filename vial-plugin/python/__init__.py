@@ -12,3 +12,5 @@ def init():
         complete='custom,VialPythonExecutableChoice', nargs=1)
 
     vial.register_command('VialPythonGotoDefinition', lfunc('.plugin.goto_definition'))
+
+    vial.register_command('VialPythonOutline', lfunc('.outline.show'))
