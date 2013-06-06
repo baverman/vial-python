@@ -12,47 +12,28 @@ def show():
 
     dialog.open()
 
-
-class HoldIt(object):
-    def __init__(self, it):
-        self.it = it
-        self._hold = []
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self.next()
-
-    def next(self):
-        if self._hold:
-            return self._hold.pop(0)
-        else:
-            return next(self.it)
-
-    def hold(self, value):
-        self._hold.append(value)
-
-
 OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(def|class)\s+(\w+)')
 def get_outline(source, tw):
     result = []
-    it = HoldIt(OUTLINE_REGEX.finditer(source))
 
-    def push_childs(plevel, parent):
-        for m in it:
+    def push_childs(pf, plevel, parent):
+        def inner(m):
             ws = m.group(1)
             level = len(ws.replace('\t', ' ' * tw)) // tw
             if level == plevel:
                 result.append((level, m.group(2), parent + (m.group(3),), m.start(2)))
+                return inner
             elif level > plevel:
-                it.hold(m)
-                push_childs(level, result[-1][2])
+                return push_childs(inner, level, result[-1][2])(m)
             else:
-                it.hold(m)
-                return
+                return pf(m)
 
-    push_childs(0, ())
+        return inner
+
+    pf = push_childs(None, 0, ())
+    for m in OUTLINE_REGEX.finditer(source):
+        pf = pf(m)
+
     return result
 
 class Outline(SearchDialog):
