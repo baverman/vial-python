@@ -1,6 +1,8 @@
 import os
-from vial import vfunc, vim
-from vial.utils import get_var, vimfunction, get_content_and_offset
+import re
+
+from vial import vfunc, vim, outline
+from vial.utils import get_var, vimfunction, get_content_and_offset, get_content
 
 from . import env
 
@@ -48,4 +50,13 @@ def goto_definition():
     else:
         print 'Location not found'
 
+def show_outline():
+    outline.show(get_outline(get_content(), vfunc.shiftwidth()))
+
+OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(def|class)\s+(\w+)')
+def get_outline(source, tw):
+    for m in OUTLINE_REGEX.finditer(source):
+        ws = m.group(1)
+        level = len(ws.replace('\t', ' ' * tw)) // tw
+        yield {'level': level, 'name': m.group(3), 'offset': m.start(2)}
 

@@ -13,4 +13,4 @@ def init():
 
     vial.register_command('VialPythonGotoDefinition', lfunc('.plugin.goto_definition'))
 
-    vial.register_command('VialPythonOutline', lfunc('.outline.show'))
+    vial.register_command('VialPythonOutline', lfunc('.plugin.show_outline'))
