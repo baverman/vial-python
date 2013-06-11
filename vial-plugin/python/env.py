@@ -1,5 +1,6 @@
 import os
 import sys
+import tempfile
 
 from os.path import exists, join, expanduser, isdir, realpath
 from supplement.remote import Environment
@@ -67,8 +68,9 @@ def get():
     try:
         env = environments[executable]
     except KeyError:
-        env = environments[executable] = Environment(
-            executable, get_var('vial_python_executable_env', {}))
+        logfile = join(tempfile.gettempdir(), 'supplement.log')
+        env = environments[executable] = Environment(executable,
+            get_var('vial_python_executable_env', {}), logfile)
 
     return env
 
