@@ -1,8 +1,12 @@
 import os
 import re
 
+from time import time
+
 from vial import vfunc, vim, outline
-from vial.utils import get_var, vimfunction, get_content_and_offset, get_content
+from vial.utils import get_var, vimfunction, get_content_and_offset, get_content, \
+    redraw, get_projects
+from vial.fsearch import get_files
 
 from . import env
 
@@ -60,3 +64,64 @@ def get_outline(source, tw):
         level = len(ws.replace('\t', ' ' * tw)) // tw
         yield {'level': level, 'name': m.group(3), 'offset': m.start(2)}
 
+def lint(append=False):
+    source = get_content()
+    errors, warns = _lint(source, vim.current.buffer.name)
+    show_lint_result(errors, warns, append)
+
+def lint_all():
+    t = time() - 1
+    errors, warns = [], []
+    for r in get_projects():
+        for name, path, root, top, fullpath in get_files(r):
+            if name.endswith('.py'):
+                if time() - t >= 1:
+                    redraw()
+                    print fullpath
+                    t = time()
+
+                with open(fullpath) as f:
+                    source = f.read()
+
+                e, w = _lint(source, fullpath)
+                errors += e
+                warns += w
+
+    show_lint_result(errors, warns)
+
+def show_lint_result(errors, warns, append=False):
+    result = errors + warns
+    if not result:
+        vim.command('cclose')
+        redraw()
+        print 'Good job!'
+        return
+
+    vfunc.setqflist(errors + warns, 'a' if append else 'r')
+    if errors:
+        vim.command('copen')
+
+    redraw()
+    print '{} error(s) and {} warning(s) found'.format(len(errors), len(warns))
+
+def _lint(source, filename):
+    result = env.get().lint(os.getcwd(), source, vim.current.buffer.name)
+
+    errors, warns = [], []
+    for (line, col), name, message in result:
+        qlist = errors if '(E' in message else warns
+        qlist.append({
+            'bufnr': '',
+            'filename': filename,
+            'pattern': '',
+            'valid': 1,
+            'nr': -1,
+            'lnum': line,
+            'vcol': 0,
+            'col': col + 1,
+            'text': message,
+            'type': ''
+        })
+
+    return errors, warns
+                
