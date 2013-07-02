@@ -13,6 +13,7 @@ def init():
 
     vial.register_command('VialPythonGotoDefinition', lfunc('.plugin.goto_definition'))
     vial.register_command('VialPythonOutline', lfunc('.plugin.show_outline'))
+    vial.register_command('VialPythonShowSignature', lfunc('.plugin.show_signature'))
 
     vial.register_command('VialPythonLint', lambda: lfunc('.plugin.lint')(False))
     vial.register_command('VialPythonLintAdd', lambda: lfunc('.plugin.lint')(True))

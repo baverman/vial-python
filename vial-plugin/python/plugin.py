@@ -125,3 +125,11 @@ def _lint(source, filename):
 
     return errors, warns
                 
+def show_signature():
+    source, pos = get_content_and_offset()
+    result = env.get().get_docstring(os.getcwd(), source, pos, vim.current.buffer.name)
+    redraw()
+    if result:
+        print result[0]
+    else:
+        print 'None'
