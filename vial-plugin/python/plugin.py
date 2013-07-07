@@ -104,6 +104,9 @@ def show_lint_result(errors, warns, append=False):
     redraw()
     print '{} error(s) and {} warning(s) found'.format(len(errors), len(warns))
 
+def _lint_result_key(item):
+    return item['lnum'], item['col']
+
 def _lint(source, filename):
     result = env.get().lint(os.getcwd(), source, vim.current.buffer.name)
 
@@ -123,6 +126,8 @@ def _lint(source, filename):
             'type': ''
         })
 
+    errors.sort(key=_lint_result_key)
+    warns.sort(key=_lint_result_key)
     return errors, warns
                 
 def show_signature():
