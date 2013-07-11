@@ -97,7 +97,7 @@ def show_lint_result(errors, warns, append=False):
         print 'Good job!'
         return
 
-    vfunc.setqflist(errors + warns, 'a' if append else 'r')
+    vfunc.setqflist(errors + warns, 'a' if append else ' ')
     if errors:
         vim.command('copen')
 
