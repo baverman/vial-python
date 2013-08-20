@@ -46,6 +46,7 @@ def goto_definition():
         vim.current.buffer.name)
 
     if line:
+        vim.command('normal! m\'')
         if fname and fname != vim.current.buffer.name:
             vim.command(':edit +{} {}'.format(line, fname)) # TODO: escape!
         else:
