@@ -1,5 +1,6 @@
-import os
 import re
+import sys
+import os.path
 
 from time import time
 
@@ -139,3 +140,61 @@ def show_signature():
         print result[0]
     else:
         print 'None'
+
+@vimfunction
+def open_module_choice(start, cmdline, pos):
+    syspath = env.get().eval('import sys\nreturn sys.path')
+    syspath.insert(0, os.getcwd())
+    modules = set()
+    
+    prefix = start.split('.')[:-1]
+    dprefix = '.'.join(prefix)
+    if dprefix:
+        dprefix += '.'
+    
+    for p in syspath:
+        if prefix:
+            p = os.path.join(p, *prefix)
+
+        if p.endswith('.zip'):
+            continue
+
+        try:
+            dlist = os.listdir(p)
+        except OSError:
+            continue
+
+        for name in dlist:
+            if name.endswith('.py'):
+                modules.add(dprefix + name[:-3])
+            elif os.path.exists(os.path.join(p, name, '__init__.py')):
+                modules.add(dprefix + name)
+
+    return '\n'.join(sorted(modules))
+
+def open_module(name):
+    vim.vars['vial_python_executable'] = name
+    syspath = env.get().eval('import sys\nreturn sys.path')
+    syspath.insert(0, os.getcwd())
+
+    mname = name.split('.')
+    pkgname = mname[:] + ['__init__.py']
+    mname[-1] += '.py'
+
+    foundpath = None
+    for p in syspath:
+        n = os.path.join(p, *mname)
+        if os.path.exists(n):
+            foundpath = n
+            break
+
+        n = os.path.join(p, *pkgname)
+        if os.path.exists(n):
+            foundpath = n
+            break
+
+    if foundpath:
+        vim.command('normal! m\'')
+        vim.command('edit {}'.format(foundpath))
+    else:
+        print >>sys.stderr, "Can't find {}".format(name)

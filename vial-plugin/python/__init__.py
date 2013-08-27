@@ -18,3 +18,8 @@ def init():
     vial.register_command('VialPythonLint', lambda: lfunc('.plugin.lint')(False))
     vial.register_command('VialPythonLintAdd', lambda: lfunc('.plugin.lint')(True))
     vial.register_command('VialPythonLintAll', lfunc('.plugin.lint_all'))
+
+    vial.register_function('<SID>VialPythonOpenModuleChoice(start, cmdline, pos)',
+        lfunc('.plugin.open_module_choice'))
+    vial.register_command('VialPythonOpenModule', lfunc('.plugin.open_module'),
+        complete='custom,<SID>VialPythonOpenModuleChoice', nargs=1)
