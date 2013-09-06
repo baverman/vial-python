@@ -59,12 +59,19 @@ def goto_definition():
 def show_outline():
     outline.show(get_outline(get_content(), vfunc.shiftwidth()))
 
-OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(def|class)\s+(\w+)')
+OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(def|class|if|elif|else|try|except|with)\s+(\w+)')
+DEAD_NODES = set(('if', 'elif', 'else', 'elif', 'try', 'except', 'with'))
 def get_outline(source, tw):
     for m in OUTLINE_REGEX.finditer(source):
         ws = m.group(1)
         level = len(ws.replace('\t', ' ' * tw)) // tw
-        yield {'level': level, 'name': m.group(3), 'offset': m.start(2)}
+
+        node = {'level': level, 'name': m.group(3), 'offset': m.start(2)}
+
+        if m.group(2) in DEAD_NODES:
+            node['dead'] = True
+
+        yield node
 
 def lint(append=False):
     source = get_content()
