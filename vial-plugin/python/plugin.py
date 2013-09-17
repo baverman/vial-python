@@ -6,7 +6,7 @@ from time import time
 
 from vial import vfunc, vim, outline
 from vial.utils import get_var, vimfunction, get_content_and_offset, get_content, \
-    redraw, get_projects
+    redraw, get_projects, mark
 from vial.fsearch import get_files
 
 from . import env
@@ -47,7 +47,7 @@ def goto_definition():
         vim.current.buffer.name)
 
     if line:
-        vim.command('normal! m\'')
+        mark()
         if fname and fname != vim.current.buffer.name:
             vim.command(':edit +{} {}'.format(line, fname)) # TODO: escape!
         else:
@@ -201,7 +201,7 @@ def open_module(name):
             break
 
     if foundpath:
-        vim.command('normal! m\'')
+        mark()
         vim.command('edit {}'.format(foundpath))
     else:
         print >>sys.stderr, "Can't find {}".format(name)
