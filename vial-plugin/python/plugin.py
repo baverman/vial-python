@@ -11,8 +11,10 @@ from vial.fsearch import get_files
 
 from . import env
 
+
 def python_buffer(buf):
     vfunc.setbufvar(buf.number, '&omnifunc', 'VialPythonOmni')
+
 
 last_result = None
 @vimfunction
@@ -20,7 +22,7 @@ def omnifunc(findstart, base):
     global last_result
     if findstart:
         source, pos = get_content_and_offset()
-        m, _ = last_result = env.get().assist(os.getcwd(), source, pos, 
+        m, _ = last_result = env.get().assist(os.getcwd(), source, pos,
             vim.current.buffer.name)
         if m is not None:
             return vim.current.window.cursor[1] - len(m)
@@ -28,6 +30,7 @@ def omnifunc(findstart, base):
             return -1
     else:
         return last_result[1]
+
 
 @vimfunction
 def executable_choice(start, cmdline, pos):
@@ -37,13 +40,14 @@ def executable_choice(start, cmdline, pos):
 
     return '\n'.join(sorted(executables))
 
+
 def set_executable(name):
     vim.vars['vial_python_executable'] = name
 
 
 def goto_definition():
     source, pos = get_content_and_offset()
-    line, fname = env.get().get_location(os.getcwd(), source, pos, 
+    line, fname = env.get().get_location(os.getcwd(), source, pos,
         vim.current.buffer.name)
 
     if line:
@@ -56,8 +60,10 @@ def goto_definition():
     else:
         print 'Location not found'
 
+
 def show_outline():
     outline.show(get_outline(get_content(), vfunc.shiftwidth()))
+
 
 OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(def|class|if|elif|else|try|except|with)\s+(\w+)')
 DEAD_NODES = set(('if', 'elif', 'else', 'elif', 'try', 'except', 'with'))
@@ -73,10 +79,12 @@ def get_outline(source, tw):
 
         yield node
 
+
 def lint(append=False):
     source = get_content()
     errors, warns = _lint(source, vim.current.buffer.name)
     show_lint_result(errors, warns, append)
+
 
 def lint_all():
     t = time() - 1
@@ -98,6 +106,7 @@ def lint_all():
 
     show_lint_result(errors, warns)
 
+
 def show_lint_result(errors, warns, append=False):
     result = errors + warns
     if not result:
@@ -113,8 +122,10 @@ def show_lint_result(errors, warns, append=False):
     redraw()
     print '{} error(s) and {} warning(s) found'.format(len(errors), len(warns))
 
+
 def _lint_result_key(item):
     return item['lnum'], item['col']
+
 
 def _lint(source, filename):
     result = env.get().lint(os.getcwd(), source, vim.current.buffer.name)
@@ -138,7 +149,8 @@ def _lint(source, filename):
     errors.sort(key=_lint_result_key)
     warns.sort(key=_lint_result_key)
     return errors, warns
-                
+
+
 def show_signature():
     source, pos = get_content_and_offset()
     result = env.get().get_docstring(os.getcwd(), source, pos, vim.current.buffer.name)
@@ -148,17 +160,18 @@ def show_signature():
     else:
         print 'None'
 
+
 @vimfunction
 def open_module_choice(start, cmdline, pos):
     syspath = env.get().eval('import sys\nreturn sys.path')
     syspath.insert(0, os.getcwd())
     modules = set()
-    
+
     prefix = start.split('.')[:-1]
     dprefix = '.'.join(prefix)
     if dprefix:
         dprefix += '.'
-    
+
     for p in syspath:
         if prefix:
             p = os.path.join(p, *prefix)
@@ -178,6 +191,7 @@ def open_module_choice(start, cmdline, pos):
                 modules.add(dprefix + name)
 
     return '\n'.join(sorted(modules))
+
 
 def open_module(name):
     vim.vars['vial_python_executable'] = name
