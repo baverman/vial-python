@@ -2,8 +2,6 @@ import vial
 from vial.utils import lfunc
 
 def init():
-    vial.event.on('filetype:python', vial.utils.lfunc('.plugin.python_buffer'))
-
     vial.register_function('VialPythonOmni(findstart, base)', '.plugin.omnifunc')
 
     vial.register_function('<SID>VialPythonExecutableChoice(start, cmdline, pos)',

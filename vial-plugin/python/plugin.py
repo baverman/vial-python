@@ -12,10 +12,6 @@ from vial.fsearch import get_files
 from . import env
 
 
-def python_buffer(buf):
-    vfunc.setbufvar(buf.number, '&omnifunc', 'VialPythonOmni')
-
-
 last_result = None
 @vimfunction
 def omnifunc(findstart, base):
