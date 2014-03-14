@@ -1,5 +1,5 @@
 import vial
-from vial.utils import lfunc
+from vial import lfunc
 
 def init():
     vial.register_function('VialPythonOmni(findstart, base)', '.plugin.omnifunc')
