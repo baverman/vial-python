@@ -190,7 +190,6 @@ def open_module_choice(start, cmdline, pos):
 
 
 def open_module(name):
-    vim.vars['vial_python_executable'] = name
     syspath = env.get().eval('import sys\nreturn sys.path')
     syspath.insert(0, os.getcwd())
 
