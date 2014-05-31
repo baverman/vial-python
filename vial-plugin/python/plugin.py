@@ -214,3 +214,24 @@ def open_module(name):
         vim.command('edit {}'.format(foundpath))
     else:
         print >>sys.stderr, "Can't find {}".format(name)
+
+
+def create_module(name):
+    parts = name.split('.')
+    pkg = parts[:-1]
+    module = parts[-1]
+
+    root = os.getcwd()
+    for r in pkg:
+        path = os.path.join(root, r)
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        init = os.path.join(path, '__init__.py')
+        if not os.path.exists(init):
+            with open(init, 'w') as f:
+                f.write('')
+        root = path
+
+    mark()
+    vim.command('edit {}'.format(os.path.join(root, module + '.py')))

@@ -21,3 +21,5 @@ def init():
         '.plugin.open_module_choice')
     vial.register_command('VialPythonOpenModule', '.plugin.open_module',
         complete='custom,<SID>VialPythonOpenModuleChoice', nargs=1)
+    vial.register_command('VialPythonCreateModule', '.plugin.create_module',
+        complete='custom,<SID>VialPythonOpenModuleChoice', nargs=1)
