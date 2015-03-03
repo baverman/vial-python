@@ -3,7 +3,7 @@ import sys
 import tempfile
 
 from os.path import exists, join, expanduser, isdir, realpath
-from supplement.remote import Environment
+from supp.remote import Environment
 
 from vial.utils import get_var
 
@@ -73,7 +73,7 @@ def get():
     try:
         env = environments[executable]
     except KeyError:
-        logfile = join(tempfile.gettempdir(), 'supplement.log')
+        logfile = join(tempfile.gettempdir(), 'supp.log')
         env = environments[executable] = Environment(executable,
             get_var('vial_python_executable_env', {}), logfile)
 
