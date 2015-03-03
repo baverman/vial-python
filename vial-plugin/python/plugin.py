@@ -17,15 +17,16 @@ last_result = None
 def omnifunc(findstart, base):
     global last_result
     if findstart:
-        source, pos = get_content_and_offset()
+        source = get_content()
+        pos = vim.current.window.cursor
         m, _ = last_result = env.get().assist(os.getcwd(), source, pos,
             vim.current.buffer.name)
         if m is not None:
-            return vim.current.window.cursor[1] - len(m)
+            return pos[1] - len(m)
         else:
             return -1
     else:
-        return last_result[1]
+        return [r for r in last_result[1] if r.startswith(base)]
 
 
 def executable_choice(start, cmdline, pos):
@@ -126,8 +127,8 @@ def _lint(source, filename):
     result = env.get().lint(os.getcwd(), source, vim.current.buffer.name)
 
     errors, warns = [], []
-    for (line, col), name, message in result:
-        qlist = errors if '(E' in message else warns
+    for etype, message, line, col in result:
+        qlist = errors if etype[0] == 'E' else warns
         qlist.append({
             'bufnr': '',
             'filename': filename,
@@ -138,7 +139,7 @@ def _lint(source, filename):
             'vcol': 0,
             'col': col + 1,
             'text': message,
-            'type': ''
+            'type': etype
         })
 
     errors.sort(key=_lint_result_key)

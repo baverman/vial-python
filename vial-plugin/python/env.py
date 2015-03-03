@@ -3,7 +3,27 @@ import sys
 import tempfile
 
 from os.path import exists, join, expanduser, isdir, realpath
-from supplement.remote import Environment
+
+try:
+    import supp
+except ImportError:
+    fname = os.__file__
+    if fname.endswith('.pyc'):
+        fname = fname[:-1]
+
+    if not os.path.islink(fname):
+        raise
+
+    real_prefix = os.path.dirname(os.path.realpath(fname))
+    site_packages = os.path.join(real_prefix, 'site-packages')
+    old_path = sys.path
+    sys.path = old_path + [site_packages]
+    try:
+        import pytest
+    finally:
+        sys.path = old_path
+
+from supp.remote import Environment
 
 from vial.utils import get_var
 
@@ -73,7 +93,7 @@ def get():
     try:
         env = environments[executable]
     except KeyError:
-        logfile = join(tempfile.gettempdir(), 'supplement.log')
+        logfile = join(tempfile.gettempdir(), 'supp.log')
         env = environments[executable] = Environment(executable,
             get_var('vial_python_executable_env', {}), logfile)
 
