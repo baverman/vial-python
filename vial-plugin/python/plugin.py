@@ -5,15 +5,15 @@ import os.path
 from time import time
 
 from vial import vfunc, vim, outline
-from vial.utils import get_var, vimfunction, get_content_and_offset, get_content, \
+from vial.utils import get_var, get_content_and_offset, get_content, \
     redraw, get_projects, mark
 from vial.fsearch import get_files
 
 from . import env
 
-
 last_result = None
-@vimfunction
+
+
 def omnifunc(findstart, base):
     global last_result
     if findstart:
@@ -28,7 +28,6 @@ def omnifunc(findstart, base):
         return last_result[1]
 
 
-@vimfunction
 def executable_choice(start, cmdline, pos):
     executables = set(('default', 'python2', 'python3'))\
         .union(env.get_virtualenvwrapper_executables())\
@@ -157,7 +156,6 @@ def show_signature():
         print 'None'
 
 
-@vimfunction
 def open_module_choice(start, cmdline, pos):
     syspath = env.get().eval('import sys\nreturn sys.path')
     syspath.insert(0, os.getcwd())

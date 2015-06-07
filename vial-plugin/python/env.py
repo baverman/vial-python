@@ -5,7 +5,7 @@ import tempfile
 from os.path import exists, join, expanduser, isdir, realpath
 from supplement.remote import Environment
 
-from vial.utils import get_var, vimfunction
+from vial.utils import get_var
 
 environments = {}
 
@@ -63,7 +63,6 @@ def get_executable():
     return sys.executable
 
 
-@vimfunction
 def get_executable_v():
     return get_executable()
 
