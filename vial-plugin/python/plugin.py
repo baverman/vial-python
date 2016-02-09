@@ -42,17 +42,18 @@ def set_executable(name):
 
 
 def goto_definition():
-    source, pos = get_content_and_offset()
-    line, fname = env.get().get_location(os.getcwd(), source, pos,
-        vim.current.buffer.name)
+    source = get_content()
+    pos = vim.current.window.cursor
+    dpos, fname = env.get().location(os.getcwd(), source, pos,
+                                     vim.current.buffer.name)
 
-    if line:
+    if dpos:
         mark()
         if fname and fname != vim.current.buffer.name:
-            vim.command(':edit +{} {}'.format(line, vfunc.fnameescape(fname)))
+            vim.command(':edit {}'.format(vfunc.fnameescape(fname)))
+            vim.current.window.cursor = dpos
         else:
-            vim.current.window.cursor = line, 0
-            vim.command('normal! ^')
+            vim.current.window.cursor = dpos
     else:
         print 'Location not found'
 
