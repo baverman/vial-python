@@ -5,6 +5,7 @@ import os.path
 from time import time
 
 from vial import vfunc, vim, outline
+from vial.helpers import echoerr
 from vial.utils import get_var, get_content_and_offset, get_content, \
     redraw, get_projects, mark
 from vial.fsearch import get_files
@@ -19,12 +20,17 @@ def omnifunc(findstart, base):
     if findstart:
         source = get_content()
         pos = vim.current.window.cursor
-        m, _ = last_result = env.get().assist(os.getcwd(), source, pos,
-            vim.current.buffer.name)
-        if m is not None:
-            return pos[1] - len(m)
+        try:
+            m, _ = last_result = env.get().assist(os.getcwd(), source, pos,
+                vim.current.buffer.name)
+        except Exception as e:
+            print >>sys.stderr, e.message
+            m = None
+
+        if m is None:
+            return -3
         else:
-            return -1
+            return pos[1] - len(m)
     else:
         return [r for r in last_result[1] if r.startswith(base)]
 
