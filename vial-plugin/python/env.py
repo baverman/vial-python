@@ -83,21 +83,24 @@ def get_executable():
     return sys.executable
 
 
-def get_executable_v():
-    return get_executable()
+def get_sources():
+    return [os.path.normpath(os.path.abspath(r))
+            for r in get_var('vial_python_sources', [os.getcwd()])]
 
 
 def get():
     executable = get_executable()
-
     try:
         env = environments[executable]
     except KeyError:
         logfile = join(tempfile.gettempdir(), 'supp.log')
-        env = environments[executable] = Environment(executable,
-            get_var('vial_python_executable_env', {}), logfile)
+        env = Environment(executable,
+                          get_var('vial_python_executable_env', {}), logfile)
+        env.configure({'sources': get_sources()})
+        environments[executable] = env
 
     return env
+
 
 def close_all():
     for v in environments.values():

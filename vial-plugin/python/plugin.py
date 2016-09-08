@@ -21,8 +21,8 @@ def omnifunc(findstart, base):
         source = get_content()
         pos = vim.current.window.cursor
         try:
-            m, _ = last_result = env.get().assist(os.getcwd(), source, pos,
-                vim.current.buffer.name)
+            m, _ = last_result = env.get().assist(source, pos,
+                                                  vim.current.buffer.name)
         except Exception as e:
             print >>sys.stderr, e.message
             m = None
@@ -50,8 +50,7 @@ def set_executable(name):
 def goto_definition():
     source = get_content()
     pos = vim.current.window.cursor
-    dpos, fname = env.get().location(os.getcwd(), source, pos,
-                                     vim.current.buffer.name)
+    dpos, fname = env.get().location(source, pos, vim.current.buffer.name)
 
     if dpos:
         mark()
@@ -131,7 +130,7 @@ def _lint_result_key(item):
 
 
 def _lint(source, filename):
-    result = env.get().lint(os.getcwd(), source, vim.current.buffer.name)
+    result = env.get().lint(source, vim.current.buffer.name)
 
     errors, warns = [], []
     for etype, message, line, col in result:
@@ -156,7 +155,7 @@ def _lint(source, filename):
 
 def show_signature():
     source, pos = get_content_and_offset()
-    result = env.get().get_docstring(os.getcwd(), source, pos, vim.current.buffer.name)
+    result = env.get().get_docstring(source, pos, vim.current.buffer.name)
     redraw()
     if result:
         print result[0]

@@ -4,7 +4,7 @@ from vial import lfunc
 def init():
     vial.register_function('VialPythonOmni(findstart, base)', '.plugin.omnifunc')
 
-    vial.register_function('VialPythonGetExecutable()', '.env.get_executable_v')
+    vial.register_function('VialPythonGetExecutable()', '.env.get_executable')
     vial.register_function('<SID>VialPythonExecutableChoice(start, cmdline, pos)',
         '.plugin.executable_choice')
     vial.register_command('VialPythonSetExecutable', '.plugin.set_executable',
