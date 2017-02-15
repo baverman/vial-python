@@ -70,7 +70,10 @@ def get_executable():
         return path
 
     if name == 'default':
-        return sys.executable
+        if 'VIRTUAL_ENV' in os.environ:
+            return which('python')
+        else:
+            return sys.executable
     elif name == 'python2':
         path = which('python2')
         if path:
