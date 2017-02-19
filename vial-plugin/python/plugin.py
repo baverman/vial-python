@@ -50,16 +50,48 @@ def set_executable(name):
 def goto_definition():
     source = get_content()
     pos = vim.current.window.cursor
-    dpos, fname = env.get().location(source, pos, vim.current.buffer.name)
+    locs = env.get().location(source, pos, vim.current.buffer.name)
 
-    if dpos:
+    if locs:
         mark()
-        if fname and fname != vim.current.buffer.name:
-            vim.command(':edit {}'.format(vfunc.fnameescape(fname)))
-            vim.current.window.cursor = dpos
+        last = locs[-1]
+        if isinstance(last, dict):
+            head = locs[:-1]
+            tail = [last]
         else:
-            vim.current.window.cursor = dpos
+            tail = last
+            last = tail[0]
+            head = locs[:-1]
+
+        locs = head + tail
+        if len(locs) > 1:
+            llist = [{
+                'bufnr': '',
+                'filename': loc['file'],
+                'pattern': '',
+                'valid': 1,
+                'nr': -1,
+                'lnum': loc['loc'][0],
+                'vcol': 0,
+                'col': loc['loc'][1] + 1,
+            } for loc in locs]
+            vfunc.setloclist(0, llist, ' ')
+            vim.command(':ll {}'.format(len(head) + 1))
+            redraw()
+            if len(tail) > 1:
+                print 'Multiple locations'
+            else:
+                print 'Chained locations'
+        else:
+            fname = last['file']
+            dpos = last['loc']
+            if fname and fname != vim.current.buffer.name:
+                vim.command(':edit {}'.format(vfunc.fnameescape(fname)))
+                vim.current.window.cursor = dpos
+            else:
+                vim.current.window.cursor = dpos
     else:
+        redraw()
         print 'Location not found'
 
 
@@ -67,7 +99,7 @@ def show_outline():
     outline.show(get_outline(get_content(), vfunc.shiftwidth()))
 
 
-OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(def|class|if|elif|else|try|except|with)\s+(\w+)')
+OUTLINE_REGEX = re.compile(r'(?m)^([ \t]*)(async\s+def|def|class|if|elif|else|try|except|with)\s+(\w+)')
 DEAD_NODES = set(('if', 'elif', 'else', 'elif', 'try', 'except', 'with'))
 def get_outline(source, tw):
     for m in OUTLINE_REGEX.finditer(source):
