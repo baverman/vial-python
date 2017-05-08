@@ -197,7 +197,7 @@ def show_signature():
 
 def open_module_choice(start, cmdline, pos):
     syspath = env.get().eval('import sys\nreturn sys.path')
-    syspath.insert(0, os.getcwd())
+    syspath = env.get_sources() + syspath
     modules = set()
 
     prefix = start.split('.')[:-1]
@@ -228,7 +228,7 @@ def open_module_choice(start, cmdline, pos):
 
 def open_module(name):
     syspath = env.get().eval('import sys\nreturn sys.path')
-    syspath.insert(0, os.getcwd())
+    syspath = env.get_sources() + syspath
 
     mname = name.split('.')
     pkgname = mname[:] + ['__init__.py']
@@ -258,7 +258,7 @@ def create_module(name):
     pkg = parts[:-1]
     module = parts[-1]
 
-    root = os.getcwd()
+    root = env.get_sources()[0]
     for r in pkg:
         path = os.path.join(root, r)
         if not os.path.exists(path):
