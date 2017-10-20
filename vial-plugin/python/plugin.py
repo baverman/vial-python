@@ -17,7 +17,9 @@ last_result = None
 
 def omnifunc(findstart, base):
     global last_result
-    if findstart:
+    if findstart in (0, b'0'):
+        return [r for r in last_result[1] if r.startswith(base)]
+    else:
         source = get_content()
         pos = vim.current.window.cursor
         try:
@@ -31,8 +33,6 @@ def omnifunc(findstart, base):
             return -3
         else:
             return pos[1] - len(m)
-    else:
-        return [r for r in last_result[1] if r.startswith(base)]
 
 
 def executable_choice(start, cmdline, pos):
