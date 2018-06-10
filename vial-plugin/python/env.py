@@ -16,10 +16,14 @@ except ImportError:
 
     real_prefix = os.path.dirname(os.path.realpath(fname))
     site_packages = os.path.join(real_prefix, 'site-packages')
+    egg_link = os.path.join(site_packages, 'supp.egg-link')
+    if os.path.exists(egg_link):
+        site_packages = open(egg_link).readline().strip()
+
     old_path = sys.path
     sys.path = old_path + [site_packages]
     try:
-        import pytest
+        import supp
     finally:
         sys.path = old_path
 
