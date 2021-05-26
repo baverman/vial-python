@@ -77,7 +77,7 @@ def get_executable():
         if 'VIRTUAL_ENV' in os.environ:
             return which('python')
         else:
-            return sys.executable
+            return which('python3')
     elif name == 'python2':
         path = which('python2')
         if path:
