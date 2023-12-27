@@ -101,9 +101,10 @@ def get():
         env = environments[executable]
     except KeyError:
         logfile = join(tempfile.gettempdir(), 'supp.log')
+        dyn_modules = list(get_var('vial_python_dynamic', []))
         env = Environment(executable,
                           get_var('vial_python_executable_env', {}), logfile)
-        env.configure({'sources': get_sources()})
+        env.configure({'sources': get_sources(), 'dyn_modules': dyn_modules})
         environments[executable] = env
 
     return env
