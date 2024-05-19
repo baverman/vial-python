@@ -5,8 +5,9 @@ import os.path
 from time import time
 
 from vial import vfunc, vim, outline
+from vial.compat import sstr
 from vial.helpers import echoerr
-from vial.utils import get_var, get_content_and_offset, get_content, \
+from vial.utils import get_dict_var, get_content_and_offset, get_content, \
     redraw, get_projects, mark
 from vial.fsearch import get_files
 
@@ -17,7 +18,7 @@ last_result = None
 
 def omnifunc(findstart, base):
     global last_result
-    if findstart in (0, b'0'):
+    if findstart in (0, b'0', '0'):
         return [r for r in last_result[1] if r.startswith(base)]
     else:
         source = get_content()
@@ -26,7 +27,7 @@ def omnifunc(findstart, base):
             m, _ = last_result = env.get().assist(source, pos,
                                                   vim.current.buffer.name)
         except Exception as e:
-            print >>sys.stderr, e.message
+            print(e.message, file=sys.stderr)
             m = None
 
         if m is None:
@@ -38,7 +39,7 @@ def omnifunc(findstart, base):
 def executable_choice(start, cmdline, pos):
     executables = set(('default', 'python2', 'python3'))\
         .union(env.get_virtualenvwrapper_executables())\
-        .union(get_var('vial_python_executables', {}))
+        .union(get_dict_var('vial_python_executables'))
 
     return '\n'.join(sorted(executables))
 
@@ -79,20 +80,20 @@ def goto_definition():
             vim.command(':ll {}'.format(len(head) + 1))
             redraw()
             if len(tail) > 1:
-                print 'Multiple locations'
+                print('Multiple locations')
             else:
-                print 'Chained locations'
+                print('Chained locations')
         else:
             fname = last['file']
             dpos = last['loc']
             if fname and fname != vim.current.buffer.name:
-                vim.command(':edit {}'.format(vfunc.fnameescape(fname)))
+                vim.command(':edit {}'.format(sstr(vfunc.fnameescape(fname))))
                 vim.current.window.cursor = dpos
             else:
                 vim.current.window.cursor = dpos
     else:
         redraw()
-        print 'Location not found'
+        print('Location not found')
 
 
 def show_outline():
@@ -128,7 +129,7 @@ def lint_all():
             if name.endswith('.py'):
                 if time() - t >= 1:
                     redraw()
-                    print fullpath
+                    print(fullpath)
                     t = time()
 
                 with open(fullpath) as f:
@@ -146,7 +147,7 @@ def show_lint_result(errors, warns, append=False):
     if not result:
         vim.command('cclose')
         redraw()
-        print 'Good job!'
+        print('Good job!')
         return
 
     vfunc.setqflist(errors + warns, 'a' if append else ' ')
@@ -154,7 +155,7 @@ def show_lint_result(errors, warns, append=False):
         vim.command('copen')
 
     redraw()
-    print '{} error(s) and {} warning(s) found'.format(len(errors), len(warns))
+    print('{} error(s) and {} warning(s) found'.format(len(errors), len(warns)))
 
 
 def _lint_result_key(item):
@@ -190,9 +191,9 @@ def show_signature():
     result = env.get().get_docstring(source, pos, vim.current.buffer.name)
     redraw()
     if result:
-        print result[0]
+        print(result[0])
     else:
-        print 'None'
+        print('None')
 
 
 def open_module_choice(start, cmdline, pos):
@@ -250,7 +251,7 @@ def open_module(name):
         mark()
         vim.command('edit {}'.format(foundpath))
     else:
-        print >>sys.stderr, "Can't find {}".format(name)
+        print("Can't find {}".format(name), file=sys.stderr)
 
 
 def create_module(name):

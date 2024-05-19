@@ -1,5 +1,6 @@
 import os
 import sys
+import site
 import tempfile
 
 from os.path import exists, join, expanduser, isdir, realpath
@@ -7,29 +8,37 @@ from os.path import exists, join, expanduser, isdir, realpath
 try:
     import supp
 except ImportError:
-    fname = os.__file__
-    if fname.endswith('.pyc'):
-        fname = fname[:-1]
+    sites = []
+    new_path = []
 
-    if not os.path.islink(fname):
-        raise
+    user_site = getattr(site, 'USER_SITE')
+    if user_site:
+        sites.append(user_site)
 
-    real_prefix = os.path.dirname(os.path.realpath(fname))
-    site_packages = os.path.join(real_prefix, 'site-packages')
-    egg_link = os.path.join(site_packages, 'supp.egg-link')
-    if os.path.exists(egg_link):
-        site_packages = open(egg_link).readline().strip()
+    os_fname = os.__file__
+    if os_fname.endswith('.pyc'):
+        os_fname = os_fname[:-1]
+    real_prefix = os.path.dirname(os.path.realpath(os_fname))
+    sites.append(os.path.join(real_prefix, 'site-packages'))
+
+    for site in sites:
+        egg_link = os.path.join(site, 'supp.egg-link')
+        if os.path.exists(egg_link):
+            new_path.append(open(egg_link).readline().strip())
+        new_path.append(site)
 
     old_path = sys.path
-    sys.path = old_path + [site_packages]
+    sys.path = old_path + new_path
     try:
         import supp
     finally:
         sys.path = old_path
 
+
 from supp.remote import Environment
 
-from vial.utils import get_var
+from vial.compat import sstr
+from vial.utils import get_var, get_list_var, get_dict_var
 
 environments = {}
 
@@ -62,10 +71,10 @@ def get_virtualenvwrapper_executable(name):
         return epath
 
 def get_executable():
-    name = get_var('vial_python_executable', 'default')
+    name = sstr(get_var('vial_python_executable', 'default'))
 
     try:
-        return get_var('vial_python_executables', {})[name]
+        return get_dict_var('vial_python_executables')[name]
     except KeyError:
         pass
 
@@ -92,7 +101,7 @@ def get_executable():
 
 def get_sources():
     return [os.path.normpath(os.path.abspath(r))
-            for r in get_var('vial_python_sources', [os.getcwd()])]
+            for r in get_list_var('vial_python_sources', [os.getcwd()])]
 
 
 def get():
@@ -101,9 +110,9 @@ def get():
         env = environments[executable]
     except KeyError:
         logfile = join(tempfile.gettempdir(), 'supp.log')
-        dyn_modules = list(get_var('vial_python_dynamic', []))
+        dyn_modules = list(get_list_var('vial_python_dynamic'))
         env = Environment(executable,
-                          get_var('vial_python_executable_env', {}), logfile)
+                          get_dict_var('vial_python_executable_env'), logfile)
         env.configure({'sources': get_sources(), 'dyn_modules': dyn_modules})
         environments[executable] = env
 
