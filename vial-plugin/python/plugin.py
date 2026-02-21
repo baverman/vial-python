@@ -55,17 +55,7 @@ def goto_definition():
 
     if locs:
         mark()
-        last = locs[-1]
-        if isinstance(last, dict):
-            head = locs[:-1]
-            tail = [last]
-        else:
-            tail = last
-            last = tail[0]
-            head = locs[:-1]
-
-        locs = head + tail
-        if len(locs) > 1:
+        if len(locs) > 1 or len(locs[0]) > 1:
             llist = [{
                 'bufnr': '',
                 'filename': loc['file'],
@@ -75,17 +65,17 @@ def goto_definition():
                 'lnum': loc['loc'][0],
                 'vcol': 0,
                 'col': loc['loc'][1] + 1,
-            } for loc in locs]
+            } for sloc in locs for loc in sloc]
             vfunc.setloclist(0, llist, ' ')
-            vim.command(':ll {}'.format(len(head) + 1))
+            vim.command(':ll {}'.format(len(locs) - len(locs[-1]) + 1))
             redraw()
-            if len(tail) > 1:
+            if len(locs[-1]) > 1:
                 print('Multiple locations')
             else:
                 print('Chained locations')
         else:
-            fname = last['file']
-            dpos = last['loc']
+            fname = locs[0][0]['file']
+            dpos = locs[0][0]['loc']
             if fname and fname != vim.current.buffer.name:
                 vim.command(':edit {}'.format(sstr(vfunc.fnameescape(fname))))
                 vim.current.window.cursor = dpos
